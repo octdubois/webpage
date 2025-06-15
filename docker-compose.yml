@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mqtt
+      - influxdb
+  nodered:
+    image: nodered/node-red:3
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./node-red/flows.json:/data/flows.json
+    depends_on:
+      - mqtt
+      - backend
+  mqtt:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+  influxdb:
+    image: influxdb:2
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    ports:
+      - "8086:8086"
+volumes:
+  influxdb-data:
